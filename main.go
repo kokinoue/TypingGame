@@ -12,16 +12,16 @@ import (
 
 var (
 	score int
-	text  string
+	question string
 )
 
 // 問題を出す
-func question() {
-	// text := "table"
+func q() {
 	rand.Seed(time.Now().UnixNano())
 	words := [...]string{"table", "chair", "pen", "water"}
+	question = words[rand.Intn(len(words))]
 	//FIXME: questionが次のinputとして見られてしまう
-	fmt.Println("\ntype this: ", words[rand.Intn(len(words))])
+	fmt.Println("\ntype this: ", question)
 	fmt.Print("> ")
 }
 
@@ -45,25 +45,24 @@ func main() {
 	ctx, cancel := context.WithTimeout(bc, t)
 	defer cancel()
 
-	question()
+	q()
 
 	ch := input(os.Stdin)
 
-	// for-select
 	for {
 		select {
 		case <-ctx.Done():
 			fmt.Println("Finish!!!")
 			fmt.Println("Your score is", score)
 			return
-		case v := <-ch:
-			if v == text {
+		case answer := <-ch:
+			if answer == question {
 				score++
 				fmt.Println("◎")
 			} else {
 				fmt.Println("×")
 			}
-			question()
+			q()
 		}
 	}
 
