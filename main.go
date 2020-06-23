@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"math/rand"
@@ -11,8 +12,9 @@ import (
 )
 
 var (
-	score int
+	score    int
 	question string
+	t        time.Duration
 )
 
 // 問題を出す
@@ -20,7 +22,6 @@ func q() {
 	rand.Seed(time.Now().UnixNano())
 	words := [...]string{"table", "chair", "pen", "water"}
 	question = words[rand.Intn(len(words))]
-	//FIXME: questionが次のinputとして見られてしまう
 	fmt.Println("\ntype this: ", question)
 	fmt.Print("> ")
 }
@@ -39,9 +40,10 @@ func input(r io.Reader) <-chan string {
 }
 
 func main() {
+	flag.DurationVar(&t, "time", 30*time.Second, "answer time")
+	flag.Parse()
 	// コンテキストによるタイムアウト
 	bc := context.Background()
-	t := 30 * time.Second
 	ctx, cancel := context.WithTimeout(bc, t)
 	defer cancel()
 
